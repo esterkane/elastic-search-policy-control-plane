@@ -1,0 +1,120 @@
+[
+  {
+    "id": "p100-without-peanuts",
+    "name": "Exclude peanut allergens",
+    "priority": 100,
+    "match": {
+      "phrase": "without peanuts",
+      "terms": ["without", "peanuts"]
+    },
+    "action": {
+      "add_exclusion": {
+        "field": "allergens",
+        "value": "peanuts"
+      },
+      "remove_phrase": "without peanuts"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The query asks to avoid peanuts, so products tagged with peanut allergens are excluded."
+  },
+  {
+    "id": "p90-under-100",
+    "name": "Apply explicit price ceiling",
+    "priority": 90,
+    "match": {
+      "phrase": "under 100",
+      "terms": ["under", "100"],
+      "regex": "\\bunder\\s+100\\b"
+    },
+    "action": {
+      "add_filter": {
+        "field": "price",
+        "operator": "lte",
+        "value": 100
+      },
+      "remove_phrase": "under 100"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The phrase under 100 is interpreted as a hard maximum price filter."
+  },
+  {
+    "id": "p80-gift-grandpa",
+    "name": "Route gift intent for grandpa",
+    "priority": 80,
+    "match": {
+      "phrase": "gift for grandpa",
+      "terms": ["gift", "grandpa"]
+    },
+    "action": {
+      "set_retrieval_strategy": "semantic_stub",
+      "remove_phrase": "gift for grandpa"
+    },
+    "conflict_strategy": "override",
+    "explanation": "Gift intent is broad and benefits from semantic routing, represented here as a semantic_stub plan."
+  },
+  {
+    "id": "p70-wireless-headphones",
+    "name": "Constrain wireless headphones to audio",
+    "priority": 70,
+    "match": {
+      "phrase": "wireless headphones",
+      "terms": ["wireless", "headphones"]
+    },
+    "action": {
+      "add_filter": {
+        "field": "category",
+        "operator": "eq",
+        "value": "electronics/audio"
+      },
+      "add_boost": {
+        "field": "tags",
+        "value": "wireless",
+        "weight": 2
+      },
+      "remove_phrase": "wireless headphones"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "Wireless headphones are mapped to the electronics/audio category with a wireless tag boost."
+  },
+  {
+    "id": "p60-cheap",
+    "name": "Prefer inexpensive items",
+    "priority": 60,
+    "match": {
+      "phrase": "cheap",
+      "terms": ["cheap"]
+    },
+    "action": {
+      "add_filter": {
+        "field": "price",
+        "operator": "lte",
+        "value": 50
+      },
+      "add_boost": {
+        "field": "tags",
+        "value": "budget",
+        "weight": 1.5
+      },
+      "remove_phrase": "cheap"
+    },
+    "conflict_strategy": "soft_boost",
+    "explanation": "Cheap is treated as an inexpensive preference with a budget boost and a soft price ceiling."
+  },
+  {
+    "id": "p10-peanut-snack-boost",
+    "name": "Boost peanut snack relevance",
+    "priority": 10,
+    "match": {
+      "terms": ["peanuts"]
+    },
+    "action": {
+      "add_boost": {
+        "field": "allergens",
+        "value": "peanuts",
+        "weight": 3
+      }
+    },
+    "conflict_strategy": "soft_boost",
+    "explanation": "When peanuts are requested positively, peanut-tagged snack products may be boosted."
+  }
+]

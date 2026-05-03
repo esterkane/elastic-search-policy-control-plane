@@ -1,0 +1,56 @@
+[
+  {
+    "id": "p1",
+    "name": "Budget Dark Chocolate Bar",
+    "description": "Affordable dark chocolate with a clean ingredient list.",
+    "category": "grocery/chocolate",
+    "price": 2.99,
+    "allergens": [],
+    "tags": ["budget", "chocolate", "vegan"]
+  },
+  {
+    "id": "p2",
+    "name": "Peanut Crunch Chocolate",
+    "description": "Milk chocolate with roasted peanut pieces.",
+    "category": "grocery/chocolate",
+    "price": 3.49,
+    "allergens": ["peanuts"],
+    "tags": ["chocolate", "snack"]
+  },
+  {
+    "id": "p3",
+    "name": "Classic Wool Cardigan",
+    "description": "Warm cardigan often chosen as a practical family gift.",
+    "category": "apparel",
+    "price": 79,
+    "allergens": [],
+    "tags": ["gift", "grandpa", "classic"]
+  },
+  {
+    "id": "p4",
+    "name": "Wireless Everyday Headphones",
+    "description": "Lightweight Bluetooth headphones with long battery life.",
+    "category": "electronics/audio",
+    "price": 89,
+    "allergens": [],
+    "tags": ["wireless", "budget", "headphones"]
+  },
+  {
+    "id": "p5",
+    "name": "Premium Wireless Noise Canceling Headphones",
+    "description": "Over-ear headphones with adaptive noise canceling.",
+    "category": "electronics/audio",
+    "price": 199,
+    "allergens": [],
+    "tags": ["wireless", "premium", "headphones"]
+  },
+  {
+    "id": "p6",
+    "name": "Desk Puzzle Gift Set",
+    "description": "A thoughtful tabletop puzzle set for relaxed afternoons.",
+    "category": "gifts",
+    "price": 24,
+    "allergens": [],
+    "tags": ["gift", "budget"]
+  }
+]
