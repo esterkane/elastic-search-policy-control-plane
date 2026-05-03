@@ -1,0 +1,37 @@
+### Health
+GET http://localhost:3000/health
+
+### Reload policies
+POST http://localhost:3000/policies/reload
+
+### Plan: cheap chocolate without peanuts
+POST http://localhost:3000/plan
+content-type: application/json
+
+{
+  "query": "cheap chocolate without peanuts"
+}
+
+### Explain: gift for grandpa
+POST http://localhost:3000/explain
+content-type: application/json
+
+{
+  "query": "gift for grandpa"
+}
+
+### Search: wireless headphones under 100
+POST http://localhost:3000/search
+content-type: application/json
+
+{
+  "query": "wireless headphones under 100"
+}
+
+### Conflict: explicit price wins over cheap hint
+POST http://localhost:3000/plan
+content-type: application/json
+
+{
+  "query": "cheap wireless headphones under 100"
+}

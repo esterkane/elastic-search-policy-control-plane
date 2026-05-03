@@ -1,0 +1,178 @@
+[
+  {
+    "id": "exclude-peanuts",
+    "name": "Exclude peanut allergens",
+    "priority": 100,
+    "match": {
+      "phrase": "without peanuts",
+      "terms": ["without", "peanuts"]
+    },
+    "action": {
+      "type": "add_exclusion",
+      "field": "allergens",
+      "value": "peanuts"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "User explicitly excluded peanuts, so products with peanut allergens are blocked."
+  },
+  {
+    "id": "price-under-100",
+    "name": "Apply under 100 price ceiling",
+    "priority": 90,
+    "match": {
+      "phrase": "under 100",
+      "terms": ["under", "100"],
+      "regex": "\\bunder\\s+100\\b"
+    },
+    "action": {
+      "type": "add_filter",
+      "field": "price",
+      "operator": "lte",
+      "value": 100
+    },
+    "conflict_strategy": "override",
+    "explanation": "The query includes an explicit price ceiling, which takes precedence over softer price hints."
+  },
+  {
+    "id": "route-grandpa-gift",
+    "name": "Route grandpa gift queries to semantic stub",
+    "priority": 80,
+    "match": {
+      "phrase": "gift for grandpa",
+      "terms": ["gift", "grandpa"]
+    },
+    "action": {
+      "type": "set_retrieval_strategy",
+      "strategy": "semantic_stub"
+    },
+    "conflict_strategy": "override",
+    "explanation": "Gift intent is broad and subjective, so v1 routes it to the semantic strategy stub."
+  },
+  {
+    "id": "remove-grandpa-gift-phrase",
+    "name": "Consume grandpa gift phrase",
+    "priority": 79,
+    "match": {
+      "phrase": "gift for grandpa",
+      "terms": ["gift", "grandpa"]
+    },
+    "action": {
+      "type": "remove_phrase",
+      "phrase": "gift for grandpa"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The gift phrase is consumed after it has been routed to the semantic strategy stub."
+  },
+  {
+    "id": "wireless-headphones-category",
+    "name": "Constrain wireless headphones to audio electronics",
+    "priority": 70,
+    "match": {
+      "phrase": "wireless headphones",
+      "terms": ["wireless", "headphones"]
+    },
+    "action": {
+      "type": "add_filter",
+      "field": "category",
+      "operator": "eq",
+      "value": "electronics/audio"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "Wireless headphone queries should stay in the audio electronics category."
+  },
+  {
+    "id": "remove-under-100-phrase",
+    "name": "Consume under 100 phrase",
+    "priority": 71,
+    "match": {
+      "phrase": "under 100",
+      "terms": ["under", "100"],
+      "regex": "\\bunder\\s+100\\b"
+    },
+    "action": {
+      "type": "remove_phrase",
+      "phrase": "under 100"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The explicit price phrase is consumed after becoming a price filter."
+  },
+  {
+    "id": "remove-wireless-headphones-phrase",
+    "name": "Consume wireless headphones phrase",
+    "priority": 69,
+    "match": {
+      "phrase": "wireless headphones",
+      "terms": ["wireless", "headphones"]
+    },
+    "action": {
+      "type": "remove_phrase",
+      "phrase": "wireless headphones"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The controlled phrase is consumed after it has been converted into a category filter."
+  },
+  {
+    "id": "cheap-price-filter",
+    "name": "Apply cheap soft price ceiling",
+    "priority": 50,
+    "match": {
+      "phrase": "cheap",
+      "terms": ["cheap"]
+    },
+    "action": {
+      "type": "add_filter",
+      "field": "price",
+      "operator": "lte",
+      "value": 25
+    },
+    "conflict_strategy": "soft_boost",
+    "explanation": "Cheap is interpreted as an inexpensive-price hint unless a stronger price policy already exists."
+  },
+  {
+    "id": "cheap-price-boost",
+    "name": "Boost inexpensive products",
+    "priority": 49,
+    "match": {
+      "phrase": "cheap",
+      "terms": ["cheap"]
+    },
+    "action": {
+      "type": "add_boost",
+      "field": "price_band",
+      "value": "budget",
+      "weight": 1.4
+    },
+    "conflict_strategy": "soft_boost",
+    "explanation": "Budget products receive a soft ranking lift for cheap-intent queries."
+  },
+  {
+    "id": "remove-cheap-phrase",
+    "name": "Consume cheap phrase",
+    "priority": 48,
+    "match": {
+      "phrase": "cheap",
+      "terms": ["cheap"]
+    },
+    "action": {
+      "type": "remove_phrase",
+      "phrase": "cheap"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "Cheap is consumed after it has been converted into price controls."
+  },
+  {
+    "id": "remove-without-peanuts-phrase",
+    "name": "Consume without peanuts phrase",
+    "priority": 47,
+    "match": {
+      "phrase": "without peanuts",
+      "terms": ["without", "peanuts"]
+    },
+    "action": {
+      "type": "remove_phrase",
+      "phrase": "without peanuts"
+    },
+    "conflict_strategy": "restrict",
+    "explanation": "The allergen phrase is consumed after becoming an exclusion."
+  }
+]

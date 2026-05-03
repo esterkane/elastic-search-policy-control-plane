@@ -1,0 +1,68 @@
+[
+  {
+    "id": "p1",
+    "name": "Budget Dark Chocolate Bar",
+    "description": "Simple dark chocolate with no nut ingredients.",
+    "category": "grocery/chocolate",
+    "brand": "Cocoa Lane",
+    "price": 3.49,
+    "price_band": "budget",
+    "allergens": ["milk"],
+    "semantic_text_stub": "affordable chocolate snack no peanuts"
+  },
+  {
+    "id": "p2",
+    "name": "Peanut Crunch Chocolate",
+    "description": "Milk chocolate with roasted peanut pieces.",
+    "category": "grocery/chocolate",
+    "brand": "Nutty Co",
+    "price": 2.99,
+    "price_band": "budget",
+    "allergens": ["peanuts", "milk"],
+    "semantic_text_stub": "cheap chocolate with peanuts"
+  },
+  {
+    "id": "p3",
+    "name": "Classic Wireless Headphones",
+    "description": "Comfortable Bluetooth headphones with 32 hour battery life.",
+    "category": "electronics/audio",
+    "brand": "SoundForge",
+    "price": 79.99,
+    "price_band": "mid",
+    "allergens": [],
+    "semantic_text_stub": "wireless headphones under 100 audio gift"
+  },
+  {
+    "id": "p4",
+    "name": "Premium Noise Cancelling Headphones",
+    "description": "Wireless over-ear headphones with adaptive noise cancellation.",
+    "category": "electronics/audio",
+    "brand": "Auralux",
+    "price": 179.99,
+    "price_band": "premium",
+    "allergens": [],
+    "semantic_text_stub": "premium wireless headphones audio"
+  },
+  {
+    "id": "p5",
+    "name": "Grandpa Garden Tool Set",
+    "description": "Durable hand tools for relaxed weekend gardening.",
+    "category": "home/garden",
+    "brand": "Greenstead",
+    "price": 44.99,
+    "price_band": "mid",
+    "allergens": [],
+    "semantic_text_stub": "thoughtful gift for grandpa gardening hobby"
+  },
+  {
+    "id": "p6",
+    "name": "Chocolate Gift Tin",
+    "description": "Assorted chocolates in a reusable tin.",
+    "category": "grocery/chocolate",
+    "brand": "Cocoa Lane",
+    "price": 18.5,
+    "price_band": "budget",
+    "allergens": ["tree_nuts", "milk"],
+    "semantic_text_stub": "gift chocolate budget"
+  }
+]

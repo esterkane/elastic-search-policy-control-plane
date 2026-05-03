@@ -1,0 +1,29 @@
+{
+  "name": "elastic-search-policy-control-plane",
+  "version": "0.1.0",
+  "description": "A compact TypeScript/Node.js Elasticsearch search policy control plane for governed e-commerce search.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "setup": "docker compose up -d elasticsearch api",
+    "ingest": "tsx scripts/ingest.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "test": "vitest run",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.17.0",
+    "fastify": "^5.2.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
