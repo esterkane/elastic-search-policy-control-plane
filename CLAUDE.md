@@ -27,6 +27,13 @@ npm run ingest    # tsx scripts/ingest.ts  (needs ES reachable on ELASTICSEARCH_
 npm run dev       # tsx watch src/server.ts
 ```
 
+### MCP server (agent access)
+```bash
+npm run mcp                          # tsx src/mcp/server.ts (stdio); mutations disabled by default
+MCP_ALLOW_MUTATIONS=true npm run mcp # allow the gated reload_policies tool
+```
+Exposes `plan` / `explain` (read-only) and `reload_policies` (mutating, gated) over MCP. No Elasticsearch required. See `docs/mcp.md`.
+
 ### Individual gates (exact)
 - Tests: `npm test`  (→ `vitest run`)
 - Type check: `npm run build`  (→ `tsc --noEmit`, `strict: true`)
@@ -43,6 +50,7 @@ and **no separate type-check beyond `tsc --noEmit`**. The de facto quality gate 
 3. `src/queryBuilder.ts` turns a plan into an Elasticsearch `function_score` query body; `src/es.ts` is the ES client.
 4. `src/app.ts` is the Fastify app exposing `GET /health`, `POST /policies/reload`, `POST /plan`, `POST /search`, `POST /explain`; `src/server.ts` boots it.
 5. Elasticsearch is the data/query execution layer only — business intent lives in policy JSON, not in app code.
+6. `src/mcp/` exposes the same core to agents over MCP (official TS SDK): `tools.ts` holds pure, dep-injected tool logic, `server.ts` is a thin SDK adapter, `errors.ts` is the structured result/error contract. Tools wrap `createPlan` / `explainPlan` / `loadPolicies` and return the same shapes the Fastify routes return.
 
 ## Invariants I must never break
 
@@ -68,6 +76,21 @@ and **no separate type-check beyond `tsc --noEmit`**. The de facto quality gate 
    repo, `docker-compose.yml`, or policy JSON. (ES runs with `xpack.security.enabled=false`
    for local single-node dev — this is a dev-only convenience, not a credential.)
 
+### MCP layer invariants
+- **Thin adapters only.** No business logic in `src/mcp/`. Tools call the existing
+  `createPlan` / `explainPlan` / `loadPolicies` and return the *same* objects the
+  Fastify routes return — provenance (`source_policy_id`, `policy_trace`,
+  `conflict_trace`) and planner determinism are preserved, not re-derived. If a
+  function isn't cleanly importable, refactor it into a shared exported function
+  reused by both the route and the tool (this is how `explainPlan` exists).
+- **Structured errors, never stack traces.** Every tool returns
+  `{ isError: false, result }` or
+  `{ isError: true, errorCategory: 'validation'|'transient'|'business', isRetryable, message, details }`.
+  Inputs are Zod-validated. Diagnostics go to stderr; stdout is the MCP transport.
+- **Mutations gated.** `reload_policies` is the only mutating tool and is gated
+  behind `MCP_ALLOW_MUTATIONS` (default `false`): when false it performs no change
+  and returns a `business` error. Do not expose any other mutating capability over MCP.
+
 ### Repo-specific invariants
 - Policies are **data, not code**: change governed behavior by editing
   `policies/sample-policies.json` and calling `POST /policies/reload` — not by special-casing
@@ -92,6 +115,10 @@ and **no separate type-check beyond `tsc --noEmit`**. The de facto quality gate 
 - [ ] No CI exists — run the gates locally and report results before calling it done.
 - [ ] README / `docs/TESTING.md` updated if commands, endpoints, policy model, or behavior changed.
 - [ ] No secrets added; config stays in env vars and is reflected in `.env.example`.
+- [ ] MCP tools stay thin (no business logic), return route-identical shapes with
+      provenance intact, validate inputs, return structured errors (no stack
+      traces), and keep `reload_policies` gated behind `MCP_ALLOW_MUTATIONS`
+      (default false). New MCP behavior has tests in `tests/mcp.test.ts`.
 
 ## External services & config
 

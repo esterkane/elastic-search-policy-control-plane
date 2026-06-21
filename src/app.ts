@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import { createElasticsearchClient, productIndex } from "./es.js";
-import { createPlan } from "./planner.js";
+import { createPlan, explainPlan } from "./planner.js";
 import { loadPolicies } from "./policies.js";
 import { planRequestSchema, type Policy } from "./types.js";
 
@@ -78,14 +78,7 @@ export async function buildApp() {
 
     const plan = createPlan(parsed.data.query, policies);
 
-    return {
-      query: parsed.data.query,
-      rewritten_query: plan.rewritten_query,
-      retrieval_strategy: plan.retrieval_strategy,
-      matched_policies: plan.matched_policies,
-      explanation: plan.explanation,
-      elasticsearch_query: plan.elasticsearch_query
-    };
+    return explainPlan(parsed.data.query, plan);
   });
 
   return app;
