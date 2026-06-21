@@ -4,3 +4,9 @@ dist/
 .DS_Store
 coverage/
 npm-debug.log*
+
+# Procedural-learning runtime artifacts (instrumentation + proposals, not source).
+# The append-only query log and human-review staging area are generated locally;
+# only the committed test fixture under tests/fixtures/ is tracked.
+data/query-log.jsonl
+policies/staged/
