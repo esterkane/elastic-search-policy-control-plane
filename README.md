@@ -157,6 +157,27 @@ curl -s http://localhost:3000/search \
 
 Returns the plan explanation, matched policies, and generated Elasticsearch query body without search hits.
 
+## Agent Access (MCP)
+
+The planner / explain core is also exposed as an **MCP server** for agents (Claude Code, Cursor, custom MCP clients), built on the official TypeScript MCP SDK (`@modelcontextprotocol/sdk`). The tools are thin adapters over the same functions the HTTP routes use, so they return the identical shapes with full provenance (`source_policy_id`, `policy_trace`, `conflict_trace`) preserved.
+
+Tools:
+
+- `plan(query)` — deterministic execution plan (read-only), same as `POST /plan`.
+- `explain(query)` — explain projection (read-only), same as `POST /explain`.
+- `reload_policies()` — **mutating**, reloads policy JSON. Gated behind `MCP_ALLOW_MUTATIONS` (default `false`): when disabled it returns a structured business error and performs no change; set `MCP_ALLOW_MUTATIONS=true` to allow it.
+
+Run it over stdio (no Elasticsearch required):
+
+```bash
+npm run mcp                          # mutations disabled (default)
+MCP_ALLOW_MUTATIONS=true npm run mcp # allow reload_policies
+```
+
+Every tool returns a structured result — `{ isError: false, result }` on success or `{ isError: true, errorCategory, isRetryable, message, details }` on failure (categories: `validation` | `transient` | `business`). Stack traces are never leaked.
+
+See [docs/mcp.md](docs/mcp.md) for the full tool reference, error contract, example calls/outputs, and a client registration snippet.
+
 ## Policy Model
 
 Policies live in [policies/sample-policies.json](policies/sample-policies.json).

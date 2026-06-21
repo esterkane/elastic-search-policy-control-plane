@@ -4,6 +4,7 @@ import type {
   BoostClause,
   ExecutionPlan,
   ExclusionClause,
+  ExplainResult,
   FilterClause,
   MatchedPolicy,
   Policy,
@@ -186,5 +187,22 @@ export function createPlan(query: string, policies: Policy[]): ExecutionPlan {
   return {
     ...planWithoutQuery,
     elasticsearch_query: buildElasticsearchQuery(planWithoutQuery)
+  };
+}
+
+/**
+ * Project a full execution plan into the explain payload shape returned by the
+ * `POST /explain` route. Kept here (next to `createPlan`) so the Fastify route
+ * and the MCP `explain` tool return the exact same object without duplicating
+ * the projection.
+ */
+export function explainPlan(query: string, plan: ExecutionPlan): ExplainResult {
+  return {
+    query,
+    rewritten_query: plan.rewritten_query,
+    retrieval_strategy: plan.retrieval_strategy,
+    matched_policies: plan.matched_policies,
+    explanation: plan.explanation,
+    elasticsearch_query: plan.elasticsearch_query
   };
 }

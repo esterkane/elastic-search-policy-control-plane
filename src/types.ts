@@ -106,3 +106,12 @@ export type ExecutionPlan = {
   explanation: PlanExplanation;
   elasticsearch_query: Record<string, unknown>;
 };
+
+export type ExplainResult = {
+  query: string;
+  rewritten_query: string;
+  retrieval_strategy: RetrievalStrategy;
+  matched_policies: MatchedPolicy[];
+  explanation: PlanExplanation;
+  elasticsearch_query: Record<string, unknown>;
+};
