@@ -51,6 +51,27 @@ and **no separate type-check beyond `tsc --noEmit`**. The de facto quality gate 
 4. `src/app.ts` is the Fastify app exposing `GET /health`, `POST /policies/reload`, `POST /plan`, `POST /search`, `POST /explain`; `src/server.ts` boots it.
 5. Elasticsearch is the data/query execution layer only — business intent lives in policy JSON, not in app code.
 6. `src/mcp/` exposes the same core to agents over MCP (official TS SDK): `tools.ts` holds pure, dep-injected tool logic, `server.ts` is a thin SDK adapter, `errors.ts` is the structured result/error contract. Tools wrap `createPlan` / `explainPlan` / `loadPolicies` and return the same shapes the Fastify routes return.
+7. `src/learning/` is the procedural-learning loop: `queryLog.ts` (append-only JSONL logging, gated), `miner.ts` (logs → candidate policies validating against `types.ts`), `safety.ts` (the gate), `staging.ts` (writes to `policies/staged/` only), `run-mining.ts` (the `npm run mine` runner). It reads/proposes but never mutates the live policy set.
+
+## How it learns (procedural-learning loop)
+
+Query logs → mined candidate policies → safety check → **staged, not applied**. Promotion to
+live is an explicit human step. Gated by `MEMORY_ENABLED` (default **false**).
+
+- **Logging.** `/plan` and `/search` call `logQuery` (best-effort, fire-and-forget). It is a
+  no-op unless `MEMORY_ENABLED=true`, so default `/plan` `/explain` behavior is unchanged and
+  reproducible. The runtime log (`data/query-log.jsonl`) and staging dir (`policies/staged/`)
+  are git-ignored; only the test fixture (`tests/fixtures/query-log.jsonl`) is committed.
+- **Mining** (`src/learning/miner.ts`) is deterministic (pure function of the log — no
+  randomness/clock/network) and emits only candidates that validate against the existing Zod
+  `policySchema`. No new policy type, no parallel planner.
+- **Safety** (`src/learning/safety.ts`): a candidate is staged only if it Zod-validates, stays
+  in bounds (boost weight range, priority below the curated band), does not widen access
+  (remove an exclusion/filter or boost an excluded value), does not conflict with a
+  higher-priority policy on the same target, and does not collide with a live id. Any failure
+  → rejected with a code + reason, never staged.
+- **Staging** (`src/learning/staging.ts`) writes only under `policies/staged/`. It has no path
+  to `policies/sample-policies.json` and never calls `/policies/reload`.
 
 ## Invariants I must never break
 
@@ -119,6 +140,12 @@ and **no separate type-check beyond `tsc --noEmit`**. The de facto quality gate 
       provenance intact, validate inputs, return structured errors (no stack
       traces), and keep `reload_policies` gated behind `MCP_ALLOW_MUTATIONS`
       (default false). New MCP behavior has tests in `tests/mcp.test.ts`.
+- [ ] Procedural learning stays safe: mined candidates validate against the Zod
+      `policySchema`, pass the safety gate before being staged, and are written
+      ONLY to `policies/staged/` — never merged into `policies/sample-policies.json`
+      or auto-reloaded (promotion is an explicit human step). `MEMORY_ENABLED` is
+      off by default so logging is a no-op and mining is inert; new behavior has
+      tests in `tests/learning.test.ts`.
 
 ## External services & config
 

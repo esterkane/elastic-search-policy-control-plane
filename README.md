@@ -221,6 +221,34 @@ Suppose product wants `under 100` to win over the softer `cheap` hint. That beha
 
 No planner code changes are required. Edit the JSON policy, call `POST /policies/reload`, and inspect `/plan` or `/explain`.
 
+## How It Learns
+
+The control plane can *propose* new policies from real usage — the procedural-learning
+half of a memory loop — without ever silently changing governed behavior. The flow is:
+
+1. **Query logs.** When `MEMORY_ENABLED=true`, `/plan` and `/search` append a lightweight
+   `{query, ts, source}` record to an append-only JSONL log (`data/query-log.jsonl`, reusing
+   existing infra — no new datastore). Logging is a no-op when the flag is off, so default
+   behavior is byte-for-byte reproducible.
+2. **Mine candidates.** `npm run mine` reads the log and derives **candidate policies**:
+   recurring search terms (document frequency ≥ a support threshold) become low-priority
+   `add_boost` proposals. Mining is deterministic (pure function of the log — no randomness,
+   clock, or network) and every candidate is built to validate against the same Zod
+   `policySchema` in `src/types.ts` — there is no parallel policy type or planner.
+3. **Safety check.** Each candidate must pass *every* gate or it is **rejected, not staged**:
+   it must Zod-validate; stay within sanity bounds (boost weight range, priority below the
+   curated governance band); not widen access (no removing an exclusion/filter, no boosting a
+   value an existing exclusion blocks); not collide with a higher-priority policy on the same
+   target; and not reuse a live policy id. Rejections are reported with a machine-readable code
+   and reason.
+4. **Stage, never apply.** Survivors are written to `policies/staged/` as individual JSON
+   files. Staging **never** touches the live `policies/sample-policies.json` and is **never**
+   auto-`reload`ed. Promotion to live is an explicit, separate human step (review the staged
+   file, move it into the live set, call `POST /policies/reload`).
+
+`MEMORY_ENABLED` defaults to **false**: with it off, query logging is inert and `npm run mine`
+reports that learning is disabled and stages nothing. See `.env.example`.
+
 ## Sample Data
 
 Sample products live in [data/products.json](data/products.json). The ingestion command recreates the `products` index with mappings for:

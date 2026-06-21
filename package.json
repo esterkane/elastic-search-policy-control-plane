@@ -12,6 +12,7 @@
     "mcp": "tsx src/mcp/server.ts",
     "setup": "docker compose up -d elasticsearch api",
     "ingest": "tsx scripts/ingest.ts",
+    "mine": "tsx src/learning/run-mining.ts",
     "smoke": "tsx scripts/smoke.ts",
     "test": "vitest run",
     "build": "tsc --noEmit"
